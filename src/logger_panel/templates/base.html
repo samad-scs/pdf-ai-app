@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}Admin Panel{% endblock %}</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet" />
+    <link rel="icon" href="/static/assets/images/favicon.ico" />
+  </head>
+  <body class="flex bg-gray-100">
+    <!-- Sidebar -->
+    {% include "partials/sidebar.html" %}
+
+    <!-- Main Content -->
+    <div class="p-4 sm:mx-36 w-full">
+      {% block content %}{% include "admin.html" %}{% endblock %}
+    </div>
+  </body>
+</html>

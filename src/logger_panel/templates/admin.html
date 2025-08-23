@@ -1,17 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Admin Panel</title>
-  <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body class="p-10 bg-gray-50">
-  <h1 class="text-3xl font-bold mb-6">Admin Panel</h1>
+{% extends "base.html" %} {% block title %}Admin Dashboard{% endblock %} {%
+block content %}
+<div class="p-6 bg-white rounded-lg shadow-md w-full">
+  <h1 class="text-2xl font-bold mb-2">Welcome to Admin Panel</h1>
+  <p class="text-gray-700">Here’s where you manage everything.</p>
 
-  <div class="space-x-4">
-    <button class="bg-red-500 text-white px-4 py-2 rounded">Drop DB</button>
-    <button class="bg-green-500 text-white px-4 py-2 rounded">Sync DB</button>
-    <button class="bg-blue-500 text-white px-4 py-2 rounded">Seed DB</button>
+  <div class="gap-4 mt-5 w-full flex items-center justify-center">
+    <button class="bg-red-500 flex-1 text-white px-4 py-2 rounded">
+      Drop DB
+    </button>
+    <button
+      onclick="callApi('/db-sync')"
+      class="bg-green-500 flex-1 text-white px-4 py-2 rounded">
+      Sync DB
+    </button>
+    <button class="bg-blue-500 flex-1 text-white px-4 py-2 rounded">
+      Seed DB
+    </button>
   </div>
-</body>
-</html>
+  <script>
+    async function callApi(endpoint, method = 'POST') {
+      try {
+        const res = await fetch(endpoint, {
+          method, // use POST for db operations
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // 🔑 important so session cookies are sent
+        })
+
+        const data = await res.json()
+      } catch (err) {
+        console.error(err)
+      }
+    }
+  </script>
+</div>
+
+{% endblock %}

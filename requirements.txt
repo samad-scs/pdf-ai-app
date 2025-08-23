@@ -1,4 +1,8 @@
 fastapi
+itsdangerous
 uvicorn[standard]
+pydantic-settings
+psycopg[binary]
+sqlalchemy
 jinja2
 python-multipart

@@ -1,6 +1,6 @@
-# FastAPI Production Starter
+# DocuLearn
 
-A production-ready backend template built with **FastAPI** .
+A production-ready backend project built with **FastAPI** .
 
 This project is designed as a learning journey to explore FastAPI’s features, best practices, and ecosystem — while also serving as a reusable boilerplate for real-world applications.
 
