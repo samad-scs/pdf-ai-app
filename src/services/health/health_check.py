@@ -1,10 +1,27 @@
 # src/utils/health_check.py
 from datetime import datetime
-from typing import Dict, Any, List, Callable
+from typing import Dict, Any, Callable, Optional
 import logging
 import asyncio
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
+
+
+class HealthCheckDetails(BaseModel):
+    """Details of a single health check"""
+
+    status: str = Field(..., description="Health status: healthy/unhealthy")
+    details: Optional[Dict[str, Any]] = Field(None, description="Check details")
+    error: Optional[str] = Field(None, description="Error message if unhealthy")
+
+
+class HealthCheckModel(BaseModel):
+    status: str = Field(..., description="Overall health status: healthy/unhealthy")
+    timestamp: str = Field(..., description="ISO timestamp of the check")
+    checks: Dict[str, HealthCheckDetails] = Field(
+        ..., description="Individual check results"
+    )
 
 
 class HealthChecker:
@@ -14,10 +31,10 @@ class HealthChecker:
     def add_check(self, name: str, check_function: Callable):
         """Add a health check function"""
         self.checks.append((name, check_function))
-        logger.info(f"Registered health check: {name}")
 
-    async def perform_checks(self) -> Dict[str, Any]:
+    async def perform_checks(self) -> HealthCheckModel:
         """Perform all registered health checks"""
+        print(self.checks)
         results = {}
         overall_status = True
 
@@ -38,7 +55,7 @@ class HealthChecker:
                     result = check_func()
 
                 results[name] = {"status": "healthy", "details": result}
-                logger.debug(f"Health check passed: {name}")
+
             except Exception as e:
                 logger.error(f"Health check failed for {name}: {str(e)}")
                 results[name] = {
@@ -63,6 +80,3 @@ health_checker = HealthChecker()
 async def basic_app_check():
     """Basic application health check"""
     return {"message": "Application is running"}
-
-
-health_checker.add_check("application", basic_app_check)

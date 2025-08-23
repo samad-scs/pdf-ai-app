@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from src.core.response import BaseResponse, success_response, error_response
 from datetime import datetime
-from src.services.health.health_check import health_checker
+from src.services.health.health_check import health_checker, HealthCheckModel
 
 router = APIRouter(prefix="/health", tags=["Health Check"])
 
@@ -10,7 +10,7 @@ router = APIRouter(prefix="/health", tags=["Health Check"])
     "/",
     summary="Health Check Endpoint",
     description="Check the health status of the API",
-    response_model=BaseResponse,
+    response_model=BaseResponse[HealthCheckModel],
     responses={
         200: {
             "description": "Service health status",

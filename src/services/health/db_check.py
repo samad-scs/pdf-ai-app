@@ -6,16 +6,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 async def check_database_connection():
     """Check if database connection is working"""
     try:
         async with AsyncSessionLocal() as session:
             # Execute a simple query to check connection
             result = await session.execute(text("SELECT 1"))
-            return {"message": "Database connection successful", "result": result.scalar()}
+            return {
+                "message": "Database connection successful",
+                "result": result.scalar(),
+            }
     except Exception as e:
         logger.error(f"Database health check failed: {str(e)}")
         raise Exception(f"Database connection failed: {str(e)}")
-
-# Register the database check
-health_checker.add_check("database", check_database_connection)

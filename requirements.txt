@@ -3,6 +3,7 @@ itsdangerous
 uvicorn[standard]
 pydantic-settings
 psycopg[binary]
+Authlib
 sqlalchemy
 jinja2
 python-multipart
