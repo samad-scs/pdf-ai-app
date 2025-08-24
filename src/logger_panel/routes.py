@@ -4,11 +4,20 @@ from fastapi.templating import Jinja2Templates
 from .auth import get_user_credentials
 from ..core.database import engine, Base
 from src.models import *
+from alembic import command
+from alembic.config import Config
+import os
+from src.core.config import settings
 
 router = APIRouter()
 templates = Jinja2Templates(directory="src/logger_panel/templates")
 
 ADMIN_USER = {"email": "admin@example.com", "password": "1234"}
+
+
+# Alembic configuration
+ALEMBIC_INI_PATH = "alembic.ini"
+ALEMBIC_MIGRATIONS_PATH = "alembic"  # Directory where migration scripts are stored
 
 
 @router.get("/", include_in_schema=False)
@@ -40,21 +49,39 @@ def logout(request: Request):
 async def logger_dashboard(request: Request):
     user = get_user_credentials(request)
     if user is None:
-        raise RedirectResponse(url="/", status_code=302)
+        return RedirectResponse(url="/", status_code=302)
     return templates.TemplateResponse("base.html", {"request": request})
 
 
 @router.post("/db-sync", include_in_schema=False)
 async def db_sync():
-    print("Starting DB sync...")
+    print("Starting DB sync with migrations...")
     try:
+        # Initialize Alembic configuration
+        alembic_cfg = Config(ALEMBIC_INI_PATH)
+        alembic_cfg.set_main_option("script_location", ALEMBIC_MIGRATIONS_PATH)
+        alembic_cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+
+        # Generate migration scripts for model changes
+        command.revision(
+            alembic_cfg, autogenerate=True, message="Auto-generated migration"
+        )
+
+        # Apply migrations to update the database
+        command.upgrade(alembic_cfg, "head")
+
+        # Ensure tables are created (for initial setup or non-migrated tables)
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
+
         return JSONResponse(
             {
                 "status": "success",
-                "message": "Database tables created/synced successfully",
+                "message": "Database tables created and synced successfully",
             }
         )
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        return JSONResponse(
+            {"status": "error", "message": f"Error during DB sync: {str(e)}"},
+            status_code=500,
+        )

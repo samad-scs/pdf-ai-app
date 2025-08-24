@@ -4,6 +4,8 @@ from src.services.auth.tokens import create_access_token, get_user
 from src.core.response import error_response
 import logging
 from pydantic import BaseModel
+from fastapi import Depends
+from src.core.database import get_db
 
 
 logger = logging.getLogger(__name__)
@@ -72,8 +74,10 @@ class LoginRequest(BaseModel):
         },
     },
 )
-async def login(body: LoginRequest):
-    user = await get_user(body.email)
+async def login(body: LoginRequest, db=Depends(get_db)):
+    logger.info(f"Attempting login for user {body}")
+
+    user = await get_user(body.email, db=db)
     logger.info(f"Attempting login for user {body.email}")
     logger.info(f"User fetched from DB: {user}")
     if not user:
